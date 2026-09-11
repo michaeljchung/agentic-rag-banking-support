@@ -1,4 +1,17 @@
+# Agentic RAG for Banking Support
 
+Most RAG demos answer questions from a single document store and stop there. Real banking support queries don't work that way — a customer asking "what's my balance, and can I get a hold lifted early?" needs both a specific account fact and a policy explanation in the same answer. I built this project to explore that gap: an agentic system that routes between structured and unstructured data sources, and checks its own output before returning it, rather than a single-shot RAG pipeline that can only ever search one index.
+
+## Problem
+
+Real support queries often need two different kinds of information at once — a specific account fact (e.g. "what's my balance") and a general policy explanation (e.g. "what's your hold policy"). A standard single-source RAG pipeline can only search one index, so it structurally cannot answer questions that need both.
+
+## Architecture
+
+Router --> SQL branch and/or Vector branch (parallel) --> Synthesis --> Reflection
+|
+(loop back to Router,
+bounded by MAX_RETRIES=2)
 - **Router** — classifies each query as needing the SQL branch, vector branch, or both.
 - **SQL branch** — a text-to-SQL agent that queries a transactions database for account-specific facts.
 - **Vector branch** — similarity search over a Chroma-embedded FAQ knowledge base for policy questions.
